@@ -1,0 +1,35 @@
+{
+  "name": "yamutools-api-testing",
+  "version": "1.0.0",
+  "description": "API testing environment for YaMuTools Yandex Music integration",
+  "main": "js-client/yandex-music-api.js",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "test": "node tests/test-basic.js",
+    "serve": "python3 -m http.server 8000",
+    "serve:bg": "python3 -m http.server 8000 &",
+    "open": "python3 -c \"import webbrowser; webbrowser.open('http://localhost:8000/test-runner.html')\""
+  },
+  "keywords": [
+    "yandex-music",
+    "api",
+    "testing",
+    "yamutools",
+    "browser-extension"
+  ],
+  "author": "YaMuTools Development Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Chimildic/YaMuTools"
+  },
+  "bugs": {
+    "url": "https://github.com/Chimildic/YaMuTools/issues"
+  },
+  "homepage": "https://github.com/Chimildic/YaMuTools",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "devDependencies": {},
+  "dependencies": {}
+}

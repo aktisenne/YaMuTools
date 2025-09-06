@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yandex Music API Test Runner</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .token-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #007bff;
+        }
+
+        .token-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .test-section {
+            margin-bottom: 30px;
+        }
+
+        .test-section h3 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+
+        .test-results {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .test-result {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #28a745;
+        }
+
+        .test-result.pass {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+
+        .test-result.fail {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+
+        .test-summary {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-connected {
+            background: #28a745;
+        }
+
+        .status-disconnected {
+            background: #dc3545;
+        }
+
+        .log-section {
+            background: #343a40;
+            color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+        }
+
+        .log-timestamp {
+            color: #6c757d;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Yandex Music API Test Runner</h1>
+            <p>Test and validate the new Yandex Music API integration</p>
+            <div class="status-indicator status-disconnected" id="statusIndicator"></div>
+            <span id="statusText">Not Connected</span>
+        </div>
+
+        <div class="content">
+            <!-- Token Management Section -->
+            <div class="token-section">
+                <h3>🔑 Token Management</h3>
+                <div class="input-group">
+                    <label for="tokenInput">Yandex Music OAuth Token:</label>
+                    <input type="password" id="tokenInput" placeholder="Enter your OAuth token here...">
+                </div>
+                <div class="input-group">
+                    <label for="clientIdInput">OAuth Client ID (Optional):</label>
+                    <input type="text" id="clientIdInput" placeholder="Your OAuth client ID...">
+                </div>
+                <button class="btn" id="storeTokenBtn">Store Token</button>
+                <button class="btn" id="validateTokenBtn">Validate Token</button>
+                <button class="btn btn-danger" id="clearTokenBtn">Clear Token</button>
+                <button class="btn" id="getAuthUrlBtn">Get Auth URL</button>
+            </div>
+
+            <!-- Test Controls Section -->
+            <div class="test-section">
+                <h3>🧪 API Tests</h3>
+                <button class="btn btn-success" id="runAllTestsBtn">Run All Tests</button>
+                <button class="btn" id="runPerfTestBtn">Performance Test</button>
+                <button class="btn" id="clearResultsBtn">Clear Results</button>
+            </div>
+
+            <!-- Test Results Section -->
+            <div class="test-results hidden" id="testResults">
+                <h4>Test Results</h4>
+                <div id="testResultsList"></div>
+                <div class="test-summary" id="testSummary"></div>
+            </div>
+
+            <!-- Performance Results Section -->
+            <div class="test-results hidden" id="perfResults">
+                <h4>Performance Test Results</h4>
+                <div id="perfResultsContent"></div>
+            </div>
+
+            <!-- Console Log Section -->
+            <div class="log-section">
+                <h4>📋 Console Log</h4>
+                <div id="consoleLog"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js-client/yandex-music-api.js"></script>
+    <script src="js-client/token-manager.js"></script>
+    <script src="config/config.js"></script>
+    <script src="tests/test-basic.js"></script>
+
+    <script>
+        // Global variables
+        let apiClient = null;
+        let tokenManager = null;
+        let tester = null;
+        let originalConsoleLog = console.log;
+        let originalConsoleWarn = console.warn;
+        let originalConsoleError = console.error;
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+            setupConsoleCapture();
+        });
+
+        function initializeApp() {
+            try {
+                // Initialize components
+                tokenManager = new TokenManager();
+                apiClient = new YandexMusicAPI();
+                tester = new APITester(apiClient, tokenManager);
+
+                log('Application initialized successfully');
+                updateConnectionStatus();
+            } catch (error) {
+                log('Failed to initialize application: ' + error.message, 'error');
+            }
+        }
+
+        function setupEventListeners() {
+            // Token management
+            document.getElementById('storeTokenBtn').addEventListener('click', storeToken);
+            document.getElementById('validateTokenBtn').addEventListener('click', validateToken);
+            document.getElementById('clearTokenBtn').addEventListener('click', clearToken);
+            document.getElementById('getAuthUrlBtn').addEventListener('click', getAuthUrl);
+
+            // Test controls
+            document.getElementById('runAllTestsBtn').addEventListener('click', runAllTests);
+            document.getElementById('runPerfTestBtn').addEventListener('click', runPerformanceTest);
+            document.getElementById('clearResultsBtn').addEventListener('click', clearResults);
+        }
+
+        function setupConsoleCapture() {
+            // Capture console output for display
+            console.log = function(...args) {
+                log(args.join(' '), 'log');
+                originalConsoleLog.apply(console, args);
+            };
+
+            console.warn = function(...args) {
+                log(args.join(' '), 'warn');
+                originalConsoleWarn.apply(console, args);
+            };
+
+            console.error = function(...args) {
+                log(args.join(' '), 'error');
+                originalConsoleError.apply(console, args);
+            };
+        }
+
+        // Token management functions
+        async function storeToken() {
+            const token = document.getElementById('tokenInput').value.trim();
+            if (!token) {
+                alert('Please enter a token first');
+                return;
+            }
+
+            try {
+                await tokenManager.storeToken(token);
+                document.getElementById('tokenInput').value = '';
+                log('Token stored successfully');
+                updateConnectionStatus();
+            } catch (error) {
+                log('Failed to store token: ' + error.message, 'error');
+            }
+        }
+
+        async function validateToken() {
+            try {
+                const validation = await tokenManager.validateToken();
+                if (validation.valid) {
+                    log('Token is valid - Account: ' + validation.account.login);
+                } else {
+                    log('Token is invalid: ' + validation.error, 'error');
+                }
+                updateConnectionStatus();
+            } catch (error) {
+                log('Token validation failed: ' + error.message, 'error');
+            }
+        }
+
+        async function clearToken() {
+            try {
+                await tokenManager.removeToken();
+                log('Token cleared');
+                updateConnectionStatus();
+            } catch (error) {
+                log('Failed to clear token: ' + error.message, 'error');
+            }
+        }
+
+        function getAuthUrl() {
+            const clientId = document.getElementById('clientIdInput').value.trim();
+            if (!clientId) {
+                alert('Please enter a Client ID first');
+                return;
+            }
+
+            const authUrl = tokenManager.generateAuthUrl(clientId);
+            window.open(authUrl, '_blank');
+            log('Authorization URL opened in new tab');
+        }
+
+        // Test functions
+        async function runAllTests() {
+            if (!await checkConnection()) return;
+
+            const button = document.getElementById('runAllTestsBtn');
+            button.innerHTML = '<div class="spinner"></div>Running Tests...';
+            button.classList.add('loading');
+
+            try {
+                const results = await tester.runAllTests();
+                displayTestResults(results);
+            } catch (error) {
+                log('Test execution failed: ' + error.message, 'error');
+            } finally {
+                button.innerHTML = 'Run All Tests';
+                button.classList.remove('loading');
+            }
+        }
+
+        async function runPerformanceTest() {
+            if (!await checkConnection()) return;
+
+            const button = document.getElementById('runPerfTestBtn');
+            button.innerHTML = '<div class="spinner"></div>Running...';
+            button.classList.add('loading');
+
+            try {
+                const results = await tester.runPerformanceTest(20);
+                displayPerformanceResults(results);
+            } catch (error) {
+                log('Performance test failed: ' + error.message, 'error');
+            } finally {
+                button.innerHTML = 'Performance Test';
+                button.classList.remove('loading');
+            }
+        }
+
+        async function checkConnection() {
+            const hasToken = await tokenManager.hasValidToken();
+            if (!hasToken) {
+                alert('Please store and validate a token first');
+                return false;
+            }
+
+            if (!apiClient.userId) {
+                try {
+                    const token = await tokenManager.getToken();
+                    await apiClient.init(token);
+                } catch (error) {
+                    log('Failed to initialize API: ' + error.message, 'error');
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        function clearResults() {
+            document.getElementById('testResults').classList.add('hidden');
+            document.getElementById('perfResults').classList.add('hidden');
+            document.getElementById('testResultsList').innerHTML = '';
+            document.getElementById('testSummary').innerHTML = '';
+            document.getElementById('perfResultsContent').innerHTML = '';
+        }
+
+        function displayTestResults(results) {
+            const resultsDiv = document.getElementById('testResults');
+            const resultsList = document.getElementById('testResultsList');
+            const summaryDiv = document.getElementById('testSummary');
+
+            resultsList.innerHTML = '';
+            results.tests.forEach(test => {
+                const testDiv = document.createElement('div');
+                testDiv.className = `test-result ${test.passed ? 'pass' : 'fail'}`;
+                testDiv.innerHTML = `
+                    <strong>${test.name}</strong><br>
+                    ${test.message}
+                `;
+                resultsList.appendChild(testDiv);
+            });
+
+            const successRate = Math.round((results.passed / (results.passed + results.failed)) * 100);
+            summaryDiv.innerHTML = `
+                <h4>Test Summary</h4>
+                <p>✅ Passed: ${results.passed} | ❌ Failed: ${results.failed} | ⏭️ Skipped: ${results.skipped}</p>
+                <p>Success Rate: ${successRate}%</p>
+            `;
+
+            resultsDiv.classList.remove('hidden');
+        }
+
+        function displayPerformanceResults(results) {
+            const perfDiv = document.getElementById('perfResults');
+            const contentDiv = document.getElementById('perfResultsContent');
+
+            contentDiv.innerHTML = `
+                <p><strong>Total Time:</strong> ${results.totalTime}ms</p>
+                <p><strong>Average Request:</strong> ${results.avgTime.toFixed(2)}ms</p>
+                <p><strong>Success Rate:</strong> ${Math.round((results.successCount / results.iterations) * 100)}%</p>
+                <p><strong>Requests:</strong> ${results.successCount}/${results.iterations}</p>
+            `;
+
+            perfDiv.classList.remove('hidden');
+        }
+
+        async function updateConnectionStatus() {
+            const hasToken = await tokenManager.hasValidToken();
+            const indicator = document.getElementById('statusIndicator');
+            const text = document.getElementById('statusText');
+
+            if (hasToken && apiClient.userId) {
+                indicator.className = 'status-indicator status-connected';
+                text.textContent = `Connected as ${apiClient.userId}`;
+            } else if (hasToken) {
+                indicator.className = 'status-indicator status-disconnected';
+                text.textContent = 'Token Stored - Not Initialized';
+            } else {
+                indicator.className = 'status-indicator status-disconnected';
+                text.textContent = 'Not Connected';
+            }
+        }
+
+        function log(message, level = 'log') {
+            const logDiv = document.getElementById('consoleLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+
+            let levelEmoji = '📝';
+            if (level === 'warn') levelEmoji = '⚠️';
+            if (level === 'error') levelEmoji = '❌';
+
+            logEntry.innerHTML = `<span class="log-timestamp">[${timestamp}]</span> ${levelEmoji} ${message}`;
+            logDiv.appendChild(logEntry);
+
+            // Auto-scroll to bottom
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        // Handle OAuth callback URL if present
+        if (window.location.hash && window.location.hash.includes('access_token')) {
+            handleAuthCallback();
+        }
+
+        async function handleAuthCallback() {
+            try {
+                const result = await tokenManager.handleCallback(window.location.href);
+                log('OAuth callback processed successfully');
+                log('Account: ' + result.account.login);
+                updateConnectionStatus();
+
+                // Clear the URL hash
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } catch (error) {
+                log('OAuth callback failed: ' + error.message, 'error');
+            }
+        }
+
+        // Make functions available globally for debugging
+        window.apiClient = apiClient;
+        window.tokenManager = tokenManager;
+        window.tester = tester;
+    </script>
+</body>
+</html>

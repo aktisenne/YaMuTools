@@ -1,0 +1,51 @@
+# API Testing Environment - Security Exclusions
+# NEVER commit real tokens or sensitive data!
+
+# OAuth Tokens - NEVER COMMIT!
+*.token
+*tokens*
+*token*
+secrets.*
+.env
+.env.local
+
+# Test credentials
+test-credentials.*
+dev-tokens.*
+staging-tokens.*
+
+# Browser storage dumps
+localStorage.*
+sessionStorage.*
+chrome-storage.*
+
+# Logs with sensitive data
+logs/*.log
+*.log
+
+# Temporary test files
+temp/
+tmp/
+.cache/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node modules (if any)
+node_modules/
+
+# Test results with tokens
+test-results/
+*.test
