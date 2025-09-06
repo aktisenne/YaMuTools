@@ -6,8 +6,7 @@
     "manifest_version": 3,
     "author": "Chimildic",
     "default_locale": "ru",
-    "host_permissions": ["https://avatars.yandex.net/*", "https://picsum.photos/*", "https://www.last.fm/*", "https://api.music.yandex.net/*"],
-    "permissions": ["storage"],
+    "permissions": ["storage", "https://avatars.yandex.net/*", "https://picsum.photos/*", "https://www.last.fm/*", "https://api.music.yandex.net/*"],
     "content_scripts": [
         {
             "run_at": "document_end",
